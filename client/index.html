@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+
+<html>
+
+    <head>
+
+        <title>W2D</title>
+        
+        <meta charset="UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        
+        <link rel="stylesheet" type="text/css" href="./css/app.css"></link>
+        <link rel="stylesheet" type="text/css" href="./css/all.css"></link>
+        <link rel="stylesheet" href="./css/leaflet.css" />
+        
+    </head>
+    
+    <body onload="onDeviceReady()">
+    
+        <div id="app">
+            <div id="coordinates">
+                <p id="coordinates-text"></p>
+            </div>
+            
+            <div id="map"></div>
+        </div>
+
+        <div id="menu">
+            <i class="fa-solid fa-location-dot"></i>
+            <i class="fa-solid fa-keyboard"></i>
+            <i class="fa-solid fa-square-plus"></i>
+            <i class="fa-solid fa-square-xmark"></i>
+
+            <i class="fa-solid fa-layer-group"></i>
+            <i class="fa-solid fa-location-crosshairs"></i>
+
+            
+
+            <p id="separator" style="line-height: 40%;"><br></p>
+
+            <i class="fa-solid fa-floppy-disk"></i>
+        </div>
+
+        <div>
+            <p id="toast" style="display: none;"></p>
+        </div>
+
+        <div id="point-id" style="display: none;">
+            <input type="text" id="point-id-text">
+
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <!-- <script language="javascript" type="text/javascript" src="./js/smtp.js"></script> -->
+        <script language="javascript" type="text/javascript" src="./js/leaflet.js"></script>
+        <script language="javascript" type="text/javascript" src="./js/rotatedMarker.js"></script>
+        <script language="javascript" type="text/javascript" src="./js/proj4.js"></script>
+        <script language="javascript" type="text/javascript" src="./js/app.js"></script>
+        
+    </body>
+
+</html>
+
