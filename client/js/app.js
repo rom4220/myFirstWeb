@@ -255,7 +255,7 @@ function refreshUserPositions(usersPositions) {
       iconUrl: 'img/position.png', 
       iconSize: [32,32], 
       iconAnchor: [16, 32], 
-      popupAnchor: [0, -32],
+      popupAnchor: [0, -16],
       className: `marker-${userId}`
     });
     const markID = L.marker([latitude, longitude], {
