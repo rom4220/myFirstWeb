@@ -268,8 +268,9 @@ function refreshUserPositions(usersPositions) {
       const circleID = L.circle([latitude, longitude], {
         color: 'red',
         fillColor: '#f03',
-        fillOpacity: 0.5,
-        radius: 400 
+        fillOpacity: 0.2,
+        radius: point.properties.accuracy ,
+        weight: 2
       });
       circleID.addTo(map);
       markers.push(circleID);
