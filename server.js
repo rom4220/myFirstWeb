@@ -19,11 +19,12 @@ io.on('connection', (socket) => {
   socket.on('updatePosition', (data) => {
     try {
         const userPosition = JSON.parse(data);
+        console.log(userPosition)
         usersPositions[userId] = userPosition;
     } catch (err) {
 
     } finally {
-        console.log('发送最新位置')
+        console.log('Send latest location')
         io.sockets.emit('latestPosition', JSON.stringify(usersPositions));
     }
   });  
