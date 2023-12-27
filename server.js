@@ -15,11 +15,10 @@ app.use(express.static('client'));
 io.on('connection', (socket) => {
   console.log('New client connected');
 
+  const userId = socket.id;
   socket.on('updatePosition', (data) => {
     try {
         const userPosition = JSON.parse(data);
-        console.log(userPosition)
-        const {userId} = userPosition;
         usersPositions[userId] = userPosition;
     } catch (err) {
 
@@ -31,6 +30,8 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
+    delete usersPositions[userId];
+    io.sockets.emit('latestPosition', JSON.stringify(usersPositions));
   });
   
 });

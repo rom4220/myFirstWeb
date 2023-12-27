@@ -51,6 +51,12 @@ var markerOptions = {
   color: "red",
   fillOpacity: 0.9,
 };
+map.on('zoomend', function() {
+  if (usersPositions) {
+    console.log(`Refresh positions`);
+    refreshUserPositions(usersPositions);
+  }
+})
 
 // Multilayer
 var currentLayer = "osm";
@@ -178,13 +184,13 @@ function geolocationError(error) {
 // 杂项
 
 const socket = io();
+let usersPositions = [];
 const userOrientation = {
   alpha: 0,
   beta: 0,
   gamma: 0
 }
 let connected = false;
-
 
 if (window.DeviceOrientationEvent) {
   window.addEventListener('deviceorientation', function(event) {
@@ -200,14 +206,15 @@ if (window.DeviceOrientationEvent) {
 }
 
 
+
 socket.on('connect', () => {
   connected = true;
 });
 socket.on('latestPosition', (data) => {
   try {
   
-    const usersPositions = JSON.parse(data);
-    console.log(`收到最新位置`)
+    usersPositions = JSON.parse(data);
+    
     refreshUserPositions(usersPositions);
   } catch(err) {
 
@@ -245,18 +252,33 @@ function refreshUserPositions(usersPositions) {
 
     const customIcon = L.icon({
       iconUrl: 'img/position.png', 
-      iconSize: [38], 
-      iconAnchor: [22, 94], 
+      iconSize: [30], 
+      iconAnchor: [0, 0], 
       popupAnchor: [-3, -76],
       className: `marker-${userId}`
     });
     const markID = L.marker([latitude, longitude], {
       icon: customIcon,
-      rotationAngle: alpha - 180
+      rotationAngle: alpha - 180,
+      className: 'marker'
     });
-    markID.addTo(map);
-    markers.push(markID);
     
+    
+    if (map._zoom > 14) {
+      const circleID = L.circle([latitude, longitude], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 400 
+      });
+      circleID.addTo(map);
+      markers.push(circleID);
+    }
+    
+   
+    markID.addTo(map);
+    
+    markers.push(markID);
     
   }
 }
