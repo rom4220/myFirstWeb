@@ -253,9 +253,9 @@ function refreshUserPositions(usersPositions) {
 
     const customIcon = L.icon({
       iconUrl: 'img/position.png', 
-      iconSize: [30], 
-      iconAnchor: [0, 0], 
-      popupAnchor: [-3, -76],
+      iconSize: [32,32], 
+      iconAnchor: [16, 32], 
+      popupAnchor: [0, -32],
       className: `marker-${userId}`
     });
     const markID = L.marker([latitude, longitude], {
