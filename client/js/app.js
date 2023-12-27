@@ -233,6 +233,7 @@ function uploadPosition() {
       userId: currentUserId,
       latitude: point.geometry.coordinates[1],
       longitude: point.geometry.coordinates[0],
+      accuracy: point.properties.accuracy,
       alpha: userOrientation.alpha,
       beta: userOrientation.beta,
       gamma: userOrientation.gamma
@@ -248,7 +249,7 @@ function refreshUserPositions(usersPositions) {
   }
   for (const userId in usersPositions) {
     const userPosition = usersPositions[userId];
-    const {latitude, longitude, alpha} = userPosition;
+    const {latitude, longitude, alpha, accuracy} = userPosition;
 
     const customIcon = L.icon({
       iconUrl: 'img/position.png', 
@@ -269,7 +270,7 @@ function refreshUserPositions(usersPositions) {
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.2,
-        radius: point.properties.accuracy ,
+        radius: accuracy ,
         weight: 2
       });
       circleID.addTo(map);
