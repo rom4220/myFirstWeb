@@ -195,9 +195,7 @@ let connected = false;
 if (window.DeviceOrientationEvent) {
   window.addEventListener('deviceorientation', function(event) {
       var alpha = event.alpha; 
-      if ((gamma < 90) || (beta < 90) || (gamma > -90) || (beta > -90)) {
-        alpha = (360 - alpha) % 360; // pantalla arriba o abajo
-      };
+      alpha = (360 - alpha) % 360; // pantalla a arriba 
       var beta = event.beta; 
       var gamma = event.gamma;
       userOrientation.alpha = alpha;
