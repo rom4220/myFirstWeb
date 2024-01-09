@@ -195,7 +195,7 @@ let connected = false;
 if (window.DeviceOrientationEvent) {
   window.addEventListener('deviceorientation', function(event) {
       var alpha = event.alpha; 
-      alpha = (alpha + 180) % 360;
+      alpha = (360 - alpha) % 360;
       var beta = event.beta; 
       var gamma = event.gamma;
       userOrientation.alpha = alpha;
