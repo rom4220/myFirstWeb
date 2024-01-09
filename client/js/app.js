@@ -260,7 +260,7 @@ function refreshUserPositions(usersPositions) {
     });
     const markID = L.marker([latitude, longitude], {
       icon: customIcon,
-      rotationAngle: alpha - 180,
+      rotationAngle: -alpha - 180,
       className: 'marker'
     });
     
