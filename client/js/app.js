@@ -250,6 +250,7 @@ function refreshUserPositions(usersPositions) {
   for (const userId in usersPositions) {
     const userPosition = usersPositions[userId];
     const {latitude, longitude, alpha, accuracy} = userPosition;
+    alpha = alpha * -1
 
     const customIcon = L.icon({
       iconUrl: 'img/position.png', 
@@ -260,7 +261,7 @@ function refreshUserPositions(usersPositions) {
     });
     const markID = L.marker([latitude, longitude], {
       icon: customIcon,
-      rotationAngle: -alpha - 180,
+      rotationAngle: alpha - 180,
       className: 'marker'
     });
     
