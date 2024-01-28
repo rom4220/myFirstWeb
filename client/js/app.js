@@ -92,9 +92,9 @@ var useGyroscope = false;
 
 //Punto de inicio de la aplicación
 function onDeviceReady() {
-  if (confirm("¿Quieres usar el sensor de orientación para indicar tu dirección actual? (Necesitarás ajustar manualmente la orientación del teléfono, si no sabes cuál es el norte, por favor selecciona 'Cancel/Cancelar')")) {
+  if (confirm("¿Quieres usar el sensor de orientación para indicar tu dirección actual? (Necesitarás ajustar manualmente la orientación del móvil, si no sabes cuál es el norte, por favor selecciona 'Cancel/Cancelar')")) {
     useGyroscope = true;
-    confirm("Gira tu teléfono para que apunte hacia el norte y luego haz clic en confirm/confirmar.")
+    confirm("Gira tu móvil al dirección norte primero y pulsa el icono abajo.")
   } else {
     useGyroscope = false;
   }
@@ -105,7 +105,6 @@ function onDeviceReady() {
   document
     .getElementsByClassName("fa-solid fa-location-dot")[0]
     .addEventListener("click", toggleGeolocation);
-
 
   document
     .getElementsByClassName("fa-solid fa-layer-group")[0]
@@ -279,7 +278,7 @@ function refreshUserPositions(usersPositions) {
     }
 
     let customIcon, markerIcon;
-    
+
     if (useGyroscope) {
       customIcon = L.icon({
         iconUrl: 'img/position.png',
