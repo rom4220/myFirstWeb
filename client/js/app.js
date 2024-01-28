@@ -1,39 +1,46 @@
-// 全局变量
+//variables globales
 
-var format = 0; // 格式化参数
+var format = 0; //Parámetros de formato
 
-var watchID = null; // 监听地理位置的ID
+var watchID = null; // Monitorear el ID de la ubicación geográfica
 
 var geolocationOptions = {
-  // 地理位置选项
-  enableHighAccuracy: true, // 高精度模式
-  timeout: 10000, // 超时时长（毫秒）
+  //Opciones de ubicación geográfica
+  enableHighAccuracy: true, // modo de alta precisión
+  timeout: 10000, // Duración del tiempo de espera (milisegundos)
 };
 
-var pointCounter = 0; // 点的计数器
+var pointCounter = 0; //Contador de puntos
 
-var pointArray = []; // 点的数组
+var pointArray = []; //matriz de puntos
 
-// 定义一个点的数据结构
+//Definir una estructura de datos de puntos
 var point = {
   id: null,
   type: "Feature",
   geometry: {
     type: "Point",
-    coordinates: [null, null], // 坐标值 [经度, 纬度]
+    coordinates: [null, null], //Valores de coordenadas [longitud, latitud]
   },
   properties: {
-    // 其他属性
+    //Otras propiedades
     count: 0,
-    accuracy: null, // 精确度
-    timestamp: null, // 时间戳
-    utm: { epsg: null, zone: null, x: null, y: null }, // UTM坐标
+    accuracy: null, // Exactitud
+    timestamp: null, // marca de tiempo
+    utm: { epsg: null, zone: null, x: null, y: null }, // coordenadas UTM
   },
 };
 
 // Leaflet
-
 var map = L.map("map", { zoomControl: false });
+
+// Escala
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+L.control.scale().addTo(map);
+
 
 var osmURL = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
 var osmAttribution =
@@ -58,6 +65,7 @@ map.on('zoomend', function() {
   }
 })
 
+
 // Multilayer
 var currentLayer = "osm";
 var pnoa = L.tileLayer.wms(
@@ -81,69 +89,67 @@ var digit = false;
 var digitNumberID = 0;
 var currentUserId = String(Date.now()) + Math.floor(Math.random() * 1000000);
 
-// App启动点
+//Punto de inicio de la aplicación
 function onDeviceReady() {
-  // showToast("onDeviceReady()");
-  // Add event listeners
+  // Obtener la referencia al elemento de la imagen de ubicación
+  var locationIcon = document.getElementsByClassName("fa-solid fa-location-dot")[0];
+  // Agregar un evento de clic al icono de ubicación
+  locationIcon.addEventListener("click", showUserLocationInfo);
   document
-    .getElementsByClassName("fa-solid fa-location-dot")[0]
-    .addEventListener("click", toggleGeolocation);
+  .getElementsByClassName("fa-solid fa-location-dot")[0]
+  .addEventListener("click", toggleGeolocation);
 
-  document
-    .getElementsByClassName("fa-solid fa-keyboard")[0]
-    .addEventListener("click", toggleIDBox);
-
-  document
-    .getElementsByClassName("fa-solid fa-square-plus")[0]
-    .addEventListener("click", storePoint);
-
-  document
-    .getElementsByClassName("fa-solid fa-square-xmark")[0]
-    .addEventListener("click", clearMemory);
-
-  document
-    .getElementsByClassName("fa-solid fa-floppy-disk")[0]
-    .addEventListener("click", saveToJSON);
 
   document
     .getElementsByClassName("fa-solid fa-layer-group")[0]
     .addEventListener("click", toggleLayer);
 
-  document
-    .getElementsByClassName("fa-solid fa-location-crosshairs")[0]
-    .addEventListener("click", toggleDigit);
-
   autocenter();
 }
 
-// 地理位置相关
+// Función para mostrar la información de la ubicación del usuario actual
+
+function showUserLocationInfo() {
+  if (point.geometry.coordinates[0] !== null && point.geometry.coordinates[1] !== null) {
+    var userPopup = L.popup()
+      .setLatLng([point.geometry.coordinates[1], point.geometry.coordinates[0]])
+      .setContent(`Latitude: ${point.geometry.coordinates[1].toFixed(6)}<br>Longitude: ${point.geometry.coordinates[0].toFixed(6)}<br>Accuracy: ${point.properties.accuracy.toFixed(2)} m`)
+      .openOn(map);
+  } else {
+    showToast("Coordinates not found.");
+  }
+}
+
+
+
+// Relacionado con la ubicación geográfica
 function toggleGeolocation() {
-  // 检查是否支持地理位置
+  // Comprobar si se admite la geolocalización
   if (!navigator.geolocation) {
-    showToast("此设备不支持地理位置!"); // 不支持时显示提示信息
+    showToast("This device does not support geolocation!"); // 不支持时显示提示信息 // Muestra información de aviso cuando no es compatible
     return;
   }
 
-  // 判断是否已启动地理位置监听
+  // Determinar si se ha iniciado el seguimiento de la ubicación
   if (watchID === null) {
     watchID = navigator.geolocation.watchPosition(
-      geolocationSuccess, // 成功回调
-      geolocationError, // 错误回调
-      geolocationOptions // 选项
+      geolocationSuccess, // devolución de llamada exitosa
+      geolocationError, // devolución de llamada de error
+      geolocationOptions // opciones
     );
-    // 改变fa-solid fa-location-dot元素的字体颜色为红色
+    //Cambia el color de fuente del elemento fa-solid fa-location-dot a rojo
     document.getElementsByClassName("fa-solid fa-location-dot")[0].style.color =
       "red";
   } else {
-    navigator.geolocation.clearWatch(watchID); // 停止监听
+    navigator.geolocation.clearWatch(watchID); // Deja de escuchar
     watchID = null;
-    // 改变fa-solid fa-location-dot元素的字体颜色为黑色
+    //Cambia el color de fuente del elemento fa-solid fa-location-dot a negro
     document.getElementsByClassName("fa-solid fa-location-dot")[0].style.color =
       "black";
   }
 }
 
-// 地理位置成功回调
+// Devolución de llamada exitosa de ubicación geográfica
 function geolocationSuccess(position) {
   point.geometry.coordinates = [
     position.coords.longitude,
@@ -152,36 +158,36 @@ function geolocationSuccess(position) {
   point.properties.accuracy = position.coords.accuracy;
   point.properties.timestamp = position.timestamp;
 
-  // 调用转换函数（该函数尚未定义）
+  // Llama a la función de conversión (esta función aún no se ha definido)
   // geographicToUTM();
 
-  // 更新HTML元素的坐标文本
+  //Actualiza el texto de coordenadas del elemento HTML
   document.getElementById("coordinates-text").innerHTML = formatCoordinates();
 
-  // 控制台打印点的详细信息
+  //La consola imprime información detallada sobre el punto
   //console.log(JSON.stringify(point, null, 4));
-  uploadPosition(); // 上报当前位置
+  uploadPosition(); //Informar ubicación actual
 }
 
-// 地理位置错误回调
+// devolución de llamada de error de geolocalización
 function geolocationError(error) {
   switch (error.code) {
     case error.PERMISSION_DENIED:
-      showToast("地理位置请求被拒绝。");
+      showToast("Geolocation request was rejected");
       break;
     case error.POSITION_UNAVAILABLE:
-      showToast("位置不可用。");
+      showToast("Location not available");
       break;
     case error.TIMEOUT:
-      showToast("地理位置请求超时。");
+      showToast("Geolocation request timed out");
       break;
     case error.UNKNOWN_ERROR:
-      showToast("未知的地理位置错误。");
+      showToast("Unknown geolocation error.");
       break;
   }
 }
 
-// 杂项
+// Misceláneas
 
 const socket = io();
 let usersPositions = [];
@@ -195,6 +201,7 @@ let connected = false;
 if (window.DeviceOrientationEvent) {
   window.addEventListener('deviceorientation', function(event) {
       var alpha = event.alpha; 
+      alpha = (360 - alpha) % 360; // pantalla a arriba 
       var beta = event.beta; 
       var gamma = event.gamma;
       userOrientation.alpha = alpha;
@@ -204,7 +211,6 @@ if (window.DeviceOrientationEvent) {
 } else {
   alert("Sorry, your browser doesn't support Device Orientation");
 }
-
 
 
 socket.on('connect', () => {
@@ -225,10 +231,10 @@ if (connected) {
 
 }
 
-// 上报当前位置
+//Informar ubicación actual
 function uploadPosition() {
   if (connected) {
-    console.log('上报当前位置')
+    console.log('Report current location')
     const userPosition = {
       userId: currentUserId,
       latitude: point.geometry.coordinates[1],
@@ -242,14 +248,16 @@ function uploadPosition() {
   }
 }
 
-// 刷新marker
+// Actualizar marcador
 function refreshUserPositions(usersPositions) {
   for (let marker of markers) {
     marker.remove();
   }
+
   for (const userId in usersPositions) {
     const userPosition = usersPositions[userId];
     const {latitude, longitude, alpha, accuracy} = userPosition;
+
 
     const customIcon = L.icon({
       iconUrl: 'img/position.png', 
@@ -258,6 +266,7 @@ function refreshUserPositions(usersPositions) {
       popupAnchor: [0, -32],
       className: `marker-${userId}`
     });
+
     const markID = L.marker([latitude, longitude], {
       icon: customIcon,
       rotationAngle: alpha - 180,
@@ -268,7 +277,7 @@ function refreshUserPositions(usersPositions) {
     if (map._zoom > 14) {
       const circleID = L.circle([latitude, longitude], {
         color: 'red',
-        fillColor: '#f03',
+        fillColor: 'red',
         fillOpacity: 0.2,
         radius: accuracy ,
         weight: 2
@@ -282,45 +291,132 @@ function refreshUserPositions(usersPositions) {
     
     markers.push(markID);
     
+    
   }
 }
 
-// 格式化坐标信息
+function refreshUserPositions(usersPositions) {
+  for (let marker of markers) {
+    marker.remove();
+  }
+
+  for (const userId in usersPositions) {
+    const userPosition = usersPositions[userId];
+    const { latitude, longitude, alpha, accuracy } = userPosition;
+
+    let fillColor, color;
+
+    // criterio para el color de la circunferencia en función de la precisión
+    if (accuracy < 10) {
+      fillColor = 'green';
+      color = 'green';
+    } else if (accuracy >= 10 && accuracy <= 20) {
+      fillColor = 'orange';
+      color = 'orange';
+    } else {
+      fillColor = 'red';
+      color = 'red';
+    }
+
+    const customIcon = L.icon({
+      iconUrl: 'img/position.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16], // Ajusta el anclaje para centrar el icono
+      popupAnchor: [0, -16], // Ajusta el anclaje del popup
+      className: `marker-${userId}`
+    });
+
+
+    const circleID = L.circle([latitude, longitude], {
+      color: color,
+      fillColor: fillColor,
+      fillOpacity: 0.2,
+      radius: accuracy,
+      weight: 0.5
+    });
+
+    // contenido del popup cuando se hace click sobre el (id, latitud, longitud, precisión horizontal)
+    const popupContent = `ID: ${userId}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
+
+
+    let popup = circleID.getPopup();
+    if (!popup) {
+      popup = L.popup().setContent(popupContent);
+      circleID.bindPopup(popup);
+    } else {
+      popup.setContent(popupContent);
+    }
+
+
+    circleID.addTo(map);
+
+
+    const markerIcon = L.marker([latitude, longitude], { icon: customIcon });
+
+
+    popup = markerIcon.getPopup();
+    if (!popup) {
+      popup = L.popup().setContent(popupContent);
+      markerIcon.bindPopup(popup);
+    } else {
+      popup.setContent(popupContent);
+    }
+
+
+    markerIcon.addTo(map);
+
+    markers.push(circleID); 
+    markers.push(markerIcon); 
+  }
+}
+
+//Formatear información de coordenadas
 function formatCoordinates() {
   var coordinateString = "";
 
   if (format == 0) {
-    coordinateString +=
-      point.geometry.coordinates[1].toFixed(8) +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-    coordinateString +=
-      point.geometry.coordinates[0].toFixed(8) +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[";
-    coordinateString += point.properties.accuracy.toFixed(2) + "]";
+    coordinateString += `[lat <span style="font-weight: bold;">${point.geometry.coordinates[1].toFixed(6)}º</span>  `;
+    coordinateString += `lon <span style="font-weight: bold;">${point.geometry.coordinates[0].toFixed(6)}º</span>]  `;
+
+    // Asigna el color según el valor de precisión
+    var accuracyColor = getAccuracyColor(point.properties.accuracy);
+        
+    var accuracyParts = point.properties.accuracy.toFixed(2).split('.');
+
+    coordinateString += `[accuracy <span style="color: ${accuracyColor};">${accuracyParts[0]}.${accuracyParts[1]}</span> m]`;
   }
 
   return coordinateString;
 }
 
-// 地理坐标转UTM坐标函数（未完成）
-function geographicToUTM() {}
-
-// 显示提示信息的函数
-function showToast(message = "默认消息。") {
-  var toast = document.getElementById("toast");
-
-  toast.innerHTML = message; // 更新提示内容
-  toast.style.display = "block"; // 显示提示
-
-  setTimeout(hideToast, 5000); // 5秒后隐藏
+// Función para obtener el color de acuerdo al valor de precisión
+function getAccuracyColor(accuracy) {
+  if (accuracy < 10) {
+    return "green"; // Precisión menor a 5 en verde
+  } else if (accuracy >= 10 && accuracy <= 20) {
+    return "orange"; // Precisión entre 5 y 10 en naranja
+  } else {
+    return "red"; // Precisión mayor a 10 en rojo
+  }
 }
 
-// 隐藏提示的函数
+
+//Función para mostrar información de solicitud
+function showToast(message = "Default message") {
+  var toast = document.getElementById("toast");
+
+  toast.innerHTML = message; //Actualizar el contenido del mensaje
+  toast.style.display = "block"; // mostrar mensaje
+
+  setTimeout(hideToast, 5000); //Ocultar después de 5 segundos
+}
+
+// Función para ocultar mensajes
 function hideToast() {
   document.getElementById("toast").style.display = "none";
 }
 
-// 创建日期时间的文件名
+//Nombre del archivo con fecha y hora de creación
 function createDateTimeFilename() {
   var rightNow = new Date();
 
@@ -337,190 +433,6 @@ function createDateTimeFilename() {
   return filename;
 }
 
-// W1 App
-function toggleIDBox() {
-  // alert("toggleIDBox()");
-  var pointID = document.getElementById("point-id");
-  var pointIDText = document.getElementById("point-id-text");
-
-  if (pointID.style.display == "none") {
-    pointID.style.display = "block";
-  } else if (pointID.style.display == "block") {
-    pointID.style.display = "none";
-  }
-}
-
-function storePoint() {
-  // alert("storePoint()")
-  // Check there are coordinates
-
-  if (
-    point.geometry.coordinates[0] === null ||
-    point.geometry.coordinates[1] === null
-  ) {
-    showToast("Coordinates not found.");
-    return;
-  }
-
-  // Point Number
-  var pointNumberID = ("0000" + pointArray.length.toString()).substr(-4);
-  console.log(pointNumberID);
-
-  var pointIDText = document.getElementById("point-id-text");
-  // console.log(pointIDText.value);
-
-  if (pointIDText.value.trim() === "") {
-    point.id = pointNumberID;
-  } else {
-    point.id = pointIDText.value.trim();
-  }
-
-  // Point counter
-  point.properties.count = pointArray.length;
-
-  // Add point to Array
-  pointArray.push(JSON.parse(JSON.stringify(point)));
-
-  // Reset text box
-  pointIDText.value = "";
-
-  // Hide text box, if necessary
-  var pointID = document.getElementById("point-id");
-
-  if (pointID.style.display == "block") {
-    pointID.style.display = "none";
-  }
-
-  var latitude = point.geometry.coordinates[1];
-  var longitude = point.geometry.coordinates[0];
-  var markID = L.circle([latitude, longitude], markerOptions);
-
-  var markerPopup =
-    "ID = " +
-    pointNumberID +
-    "<br/>" +
-    "User ID: " +
-    point.id +
-    "<br/>" +
-    "Latitude: " +
-    latitude.toFixed(8) +
-    "<br/>" +
-    "Longitude: " +
-    longitude.toFixed(8) +
-    "<br/>" +
-    "Accuracy: " +
-    point.properties.accuracy.toFixed(2);
-
-  markID.bindPopup(markerPopup);
-
-  markID.addTo(map);
-  markerArray.push(markID);
-
-  resetPoint();
-
-  console.log(JSON.stringify(pointArray, null, 4));
-}
-
-function resetPoint() {
-  point = {
-    id: null,
-    type: "Feature",
-    geometry: {
-      type: "Point",
-      coordinates: [null, null], // 坐标值 [经度, 纬度]
-    },
-    properties: {
-      // 其他属性
-      count: 0,
-      accuracy: null, // 精确度
-      timestamp: null, // 时间戳
-      utm: { epsg: null, zone: null, x: null, y: null }, // UTM坐标
-    },
-  };
-}
-
-function clearMemory() {
-  // showToast("clearMemory()");
-
-  // Check there are data to remove
-  if (pointArray.length == 0) {
-    showToast("there are not data yet");
-    return;
-  }
-
-  // Ask to clear memory
-  var clearMemoryContents = confirm(
-    "All collected data will be lost. roceed? "
-  );
-  if (!clearMemoryContents) {
-    return;
-  }
-
-  // Leaflet
-  for (var i = 0; i < markerArray.length; i++) {
-    map.removeLayer(markerArray[i]);
-  }
-  markerArray = [];
-
-  pointArray = [];
-  resetPoint();
-
-  document.getElementById("coordinates-text").innerHTML = "";
-}
-
-function saveToJSON() {
-  // Check there are data to save
-  if (pointArray.length == 0) {
-    showToast("there are not data yet");
-    return;
-  }
-
-  var filename = createDateTimeFilename();
-  console.log(filename);
-
-  var geojson = { type: "FeatureCollection", features: pointArray };
-
-  // MINE (multipurpose internet mail extension)
-
-  var mine = "data:application/json;charset=utf-8,";
-
-  // Virtual Link
-  var saveLink = document.createElement("a");
-
-  // Link attributes
-  saveLink.setAttribute(
-    "href",
-    mine + encodeURI(JSON.stringify(geojson, null, 4))
-  );
-
-  saveLink.setAttribute("download", filename);
-
-  // Save by click
-  document.body.appendChild(saveLink);
-  saveLink.click();
-  document.body.removeChild(saveLink);
-
-  // Ask to clear memory
-  var clearMemoryContents = confirm(
-    "All collected data will be lost. roceed? "
-  );
-  if (!clearMemoryContents) {
-    return;
-  }
-
-  for (var i = 0; i < markerArray.length; i++) {
-    map.removeLayer(markerArray[i]);
-  }
-  markerArray = [];
-
-  // reset values
-  pointArray = [];
-  resetPoint();
-  // document.getElementById("coordinates-text").innerHTML = "";
-
-  // Message to user
-  showToast("Data saved to file " + filename);
-}
 
 function autocenter() {
   if (!navigator.geolocation) {
@@ -549,60 +461,4 @@ function toggleLayer() {
     map.addLayer(baseMaps["osm"]);
     currentLayer = "osm";
   }
-}
-
-function toggleDigit() {
-  // alert("toggleDigit()");
-  if (!digit) {
-    digit = true;
-    document.getElementsByClassName(
-      "fa-solid fa-location-crosshairs"
-    )[0].style.color = "orange";
-
-    // Enable leaflet click event
-    map.on("click", captureCoordinates);
-    document.getElementById("map").style.cursor = "crosshair";
-  } else {
-    digit = false;
-    document.getElementsByClassName(
-      "fa-solid fa-location-crosshairs"
-    )[0].style.color = "black";
-
-    // Disable leaflet click event
-    map.off("click", captureCoordinates);
-    document.getElementById("map").style.cursor = "grab";
-  }
-}
-
-function captureCoordinates(event) {
-  // alert("captureCoordinates()");
-  var coordinates = event.latlng;
-  var latitude = coordinates.lat;
-  var longitude = coordinates.lng;
-
-  console.log(latitude, longitude);
-
-  var digitMarkerOptions = {
-    radius: 4,
-    color: "blue",
-    fillOpacity: 0.9,
-  };
-
-  var markID = L.circle([latitude, longitude], digitMarkerOptions);
-  markID.addTo(map);
-
-  var markerPopup =
-    "ID = " +
-    digitNumberID +
-    "<br/>" +
-    "Latitude = " +
-    latitude.toFixed(8) +
-    "<br/>" +
-    "Longitude = " +
-    longitude.toFixed(8) +
-    "<br/>" +
-    "Source = Digit";
-
-  markID.bindPopup(markerPopup)
-  digitNumberID += 1
 }
