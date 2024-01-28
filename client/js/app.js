@@ -278,17 +278,30 @@ function refreshUserPositions(usersPositions) {
       color = 'red';
     }
 
-    const customIcon = L.icon({
-      iconUrl: 'img/position.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16],
-      className: `marker-${userId}`
-    });
+    if (useGyroscope) {
+      const customIcon = L.icon({
+        iconUrl: 'img/position.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16],
+        className: `marker-${userId}`
+      });
 
-
+      const markerIcon = L.marker([latitude, longitude], {
+        icon: customIcon,
+        rotationAngle: alpha - 180,
+        className: 'marker'
+      });
+    } else {
+      const customIcon = L.icon({
+        iconUrl: 'img/location.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16],
+        className: `marker-${userId}`
+      });
+    }  
     const userName = `Usuario ${index + 1}`;
-
 
     const circleID = L.circle([latitude, longitude], {
       color: color,
@@ -298,19 +311,9 @@ function refreshUserPositions(usersPositions) {
       weight: 0.5
     });
 
-
     const popupContent = `Nombre: ${userName}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
 
-
     circleID.addTo(map).bindPopup(popupContent);
-
-
-    const markerIcon = L.marker([latitude, longitude], {
-      icon: customIcon,
-      rotationAngle: alpha - 180,
-      className: 'marker'
-    });
-
 
     markerIcon.addTo(map).bindPopup(popupContent);
 
