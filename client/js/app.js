@@ -36,7 +36,7 @@ var map = L.map("map", { zoomControl: false });
 
 // Escala
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 L.control.scale().addTo(map);
@@ -58,7 +58,7 @@ var markerOptions = {
   color: "red",
   fillOpacity: 0.9,
 };
-map.on('zoomend', function() {
+map.on('zoomend', function () {
   if (usersPositions) {
     console.log(`Refresh positions`);
     refreshUserPositions(usersPositions);
@@ -88,16 +88,22 @@ var baseMaps = {
 var digit = false;
 var digitNumberID = 0;
 var currentUserId = String(Date.now()) + Math.floor(Math.random() * 1000000);
+var useGyroscope = false;
 
 //Punto de inicio de la aplicación
 function onDeviceReady() {
+  if (confirm("¿Quieres usar el sensor de orientación para indicar tu dirección actual? (Necesitarás ajustar manualmente la orientación del teléfono, si no sabes cuál es el norte, por favor selecciona 'No')")) {
+    useGyroscope = true;
+  } else {
+    useGyroscope = false;
+  }
   // Obtener la referencia al elemento de la imagen de ubicación
   var locationIcon = document.getElementsByClassName("fa-solid fa-location-dot")[0];
   // Agregar un evento de clic al icono de ubicación
   locationIcon.addEventListener("click", showUserLocationInfo);
   document
-  .getElementsByClassName("fa-solid fa-location-dot")[0]
-  .addEventListener("click", toggleGeolocation);
+    .getElementsByClassName("fa-solid fa-location-dot")[0]
+    .addEventListener("click", toggleGeolocation);
 
 
   document
@@ -198,14 +204,14 @@ const userOrientation = {
 let connected = false;
 
 if (window.DeviceOrientationEvent) {
-  window.addEventListener('deviceorientation', function(event) {
-      var alpha = event.alpha; 
-      alpha = (360 - alpha) % 360; // pantalla a arriba 
-      var beta = event.beta; 
-      var gamma = event.gamma;
-      userOrientation.alpha = alpha;
-      userOrientation.beta = beta;
-      userOrientation.gamma = gamma;
+  window.addEventListener('deviceorientation', function (event) {
+    var alpha = event.alpha;
+    alpha = (360 - alpha) % 360; // pantalla a arriba 
+    var beta = event.beta;
+    var gamma = event.gamma;
+    userOrientation.alpha = alpha;
+    userOrientation.beta = beta;
+    userOrientation.gamma = gamma;
   }, false);
 } else {
   alert("Sorry, your browser doesn't support Device Orientation");
@@ -217,11 +223,11 @@ socket.on('connect', () => {
 });
 socket.on('latestPosition', (data) => {
   try {
-  
+
     usersPositions = JSON.parse(data);
-    
+
     refreshUserPositions(usersPositions);
-  } catch(err) {
+  } catch (err) {
 
   }
 })
@@ -260,7 +266,7 @@ function refreshUserPositions(usersPositions) {
 
     let fillColor, color;
 
-    
+
     if (accuracy < 10) {
       fillColor = 'green';
       color = 'green';
@@ -280,10 +286,10 @@ function refreshUserPositions(usersPositions) {
       className: `marker-${userId}`
     });
 
-    
+
     const userName = `Usuario ${index + 1}`;
 
-    
+
     const circleID = L.circle([latitude, longitude], {
       color: color,
       fillColor: fillColor,
@@ -292,25 +298,25 @@ function refreshUserPositions(usersPositions) {
       weight: 0.5
     });
 
-    
+
     const popupContent = `Nombre: ${userName}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
 
-    
+
     circleID.addTo(map).bindPopup(popupContent);
 
-    
+
     const markerIcon = L.marker([latitude, longitude], {
       icon: customIcon,
       rotationAngle: alpha - 180,
-      className: 'marker' 
-      });
+      className: 'marker'
+    });
 
-    
+
     markerIcon.addTo(map).bindPopup(popupContent);
 
 
-    markers.push(circleID); 
-    markers.push(markerIcon); 
+    markers.push(circleID);
+    markers.push(markerIcon);
   }
 }
 
@@ -325,7 +331,7 @@ function formatCoordinates() {
 
     // Asigna el color según el valor de precisión
     var accuracyColor = getAccuracyColor(point.properties.accuracy);
-        
+
     var accuracyParts = point.properties.accuracy.toFixed(2).split('.');
 
     coordinateString += `[accuracy <span style="color: ${accuracyColor};">${accuracyParts[0]}.${accuracyParts[1]}</span> m]`;
