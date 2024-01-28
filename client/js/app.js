@@ -299,7 +299,11 @@ function refreshUserPositions(usersPositions) {
     circleID.addTo(map).bindPopup(popupContent);
 
     
-    const markerIcon = L.marker([latitude, longitude], { icon: customIcon });
+    const markerIcon = L.marker([latitude, longitude], {
+      icon: customIcon,
+      rotationAngle: alpha - 180,
+      className: 'marker' 
+      });
 
     
     markerIcon.addTo(map).bindPopup(popupContent);
