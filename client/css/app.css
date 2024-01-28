@@ -45,7 +45,7 @@ body {
 
 #menu {
   width: 100px;
-  height: 8%;
+  height: 55px;
   position: fixed;
   bottom: 10px; /* Ajusta la posición vertical según sea necesario */
   left: 50%;
