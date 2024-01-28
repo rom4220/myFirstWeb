@@ -92,8 +92,9 @@ var useGyroscope = false;
 
 //Punto de inicio de la aplicación
 function onDeviceReady() {
-  if (confirm("¿Quieres usar el sensor de orientación para indicar tu dirección actual? (Necesitarás ajustar manualmente la orientación del teléfono, si no sabes cuál es el norte, por favor selecciona 'No')")) {
+  if (confirm("¿Quieres usar el sensor de orientación para indicar tu dirección actual? (Necesitarás ajustar manualmente la orientación del teléfono, si no sabes cuál es el norte, por favor selecciona 'Cancel/Cancelar')")) {
     useGyroscope = true;
+    confirm("Gira tu teléfono para que apunte hacia el norte y luego haz clic en confirm/confirmar.")
   } else {
     useGyroscope = false;
   }
@@ -114,7 +115,6 @@ function onDeviceReady() {
 }
 
 // Función para mostrar la información de la ubicación del usuario actual
-
 function showUserLocationInfo() {
   if (point.geometry.coordinates[0] !== null && point.geometry.coordinates[1] !== null) {
     var userPopup = L.popup()
@@ -278,8 +278,10 @@ function refreshUserPositions(usersPositions) {
       color = 'red';
     }
 
+    let customIcon, markerIcon;
+    
     if (useGyroscope) {
-      const customIcon = L.icon({
+      customIcon = L.icon({
         iconUrl: 'img/position.png',
         iconSize: [32, 32],
         iconAnchor: [16, 16],
@@ -287,19 +289,25 @@ function refreshUserPositions(usersPositions) {
         className: `marker-${userId}`
       });
 
-      const markerIcon = L.marker([latitude, longitude], {
+      markerIcon = L.marker([latitude, longitude], {
         icon: customIcon,
         rotationAngle: alpha - 180,
         className: 'marker'
       });
+
     } else {
-      const customIcon = L.icon({
+      customIcon = L.icon({
         iconUrl: 'img/location.png',
         iconSize: [32, 32],
         iconAnchor: [16, 16],
         popupAnchor: [0, -16],
         className: `marker-${userId}`
       });
+
+      markerIcon = L.marker([latitude, longitude], {
+        icon: customIcon,
+      });
+
     }  
     const userName = `Usuario ${index + 1}`;
 
@@ -314,10 +322,7 @@ function refreshUserPositions(usersPositions) {
     const popupContent = `Nombre: ${userName}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
 
     circleID.addTo(map).bindPopup(popupContent);
-
-    markerIcon.addTo(map).bindPopup(popupContent);
-
-
+    markerIcon.addTo(map).bindPopup(popupContent); 
     markers.push(circleID);
     markers.push(markerIcon);
   }
