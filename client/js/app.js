@@ -126,7 +126,7 @@ function showUserLocationInfo() {
 function toggleGeolocation() {
   // Comprobar si se admite la geolocalización
   if (!navigator.geolocation) {
-    showToast("This device does not support geolocation!"); // 不支持时显示提示信息 // Muestra información de aviso cuando no es compatible
+    showToast("This device does not support geolocation!"); // Muestra información de aviso cuando no es compatible
     return;
   }
 
@@ -248,65 +248,20 @@ function uploadPosition() {
   }
 }
 
-// Actualizar marcador
-function refreshUserPositions(usersPositions) {
-  for (let marker of markers) {
-    marker.remove();
-  }
 
-  for (const userId in usersPositions) {
-    const userPosition = usersPositions[userId];
-    const {latitude, longitude, alpha, accuracy} = userPosition;
-
-
-    const customIcon = L.icon({
-      iconUrl: 'img/position.png', 
-      iconSize: [32,32], 
-      iconAnchor: [16, 12], 
-      popupAnchor: [0, -32],
-      className: `marker-${userId}`
-    });
-
-    const markID = L.marker([latitude, longitude], {
-      icon: customIcon,
-      rotationAngle: alpha - 180,
-      className: 'marker'
-    });
-    
-    
-    if (map._zoom > 14) {
-      const circleID = L.circle([latitude, longitude], {
-        color: 'red',
-        fillColor: 'red',
-        fillOpacity: 0.2,
-        radius: accuracy ,
-        weight: 2
-      });
-      circleID.addTo(map);
-      markers.push(circleID);
-    }
-    
-   
-    markID.addTo(map);
-    
-    markers.push(markID);
-    
-    
-  }
-}
 
 function refreshUserPositions(usersPositions) {
   for (let marker of markers) {
     marker.remove();
   }
 
-  for (const userId in usersPositions) {
+  for (const [index, userId] of Object.keys(usersPositions).entries()) {
     const userPosition = usersPositions[userId];
     const { latitude, longitude, alpha, accuracy } = userPosition;
 
     let fillColor, color;
 
-    // criterio para el color de la circunferencia en función de la precisión
+    
     if (accuracy < 10) {
       fillColor = 'green';
       color = 'green';
@@ -321,12 +276,15 @@ function refreshUserPositions(usersPositions) {
     const customIcon = L.icon({
       iconUrl: 'img/position.png',
       iconSize: [32, 32],
-      iconAnchor: [16, 16], // Ajusta el anclaje para centrar el icono
-      popupAnchor: [0, -16], // Ajusta el anclaje del popup
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
       className: `marker-${userId}`
     });
 
+    
+    const userName = `Usuario ${index + 1}`;
 
+    
     const circleID = L.circle([latitude, longitude], {
       color: color,
       fillColor: fillColor,
@@ -335,40 +293,24 @@ function refreshUserPositions(usersPositions) {
       weight: 0.5
     });
 
-    // contenido del popup cuando se hace click sobre el (id, latitud, longitud, precisión horizontal)
-    const popupContent = `ID: ${userId}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
+    
+    const popupContent = `Nombre: ${userName}<br>` + `Latitude: ${latitude.toFixed(6)}<br>` + `Longitude: ${longitude.toFixed(6)}<br>` + `Accuracy: ${accuracy.toFixed(2)}`;
 
+    
+    circleID.addTo(map).bindPopup(popupContent);
 
-    let popup = circleID.getPopup();
-    if (!popup) {
-      popup = L.popup().setContent(popupContent);
-      circleID.bindPopup(popup);
-    } else {
-      popup.setContent(popupContent);
-    }
-
-
-    circleID.addTo(map);
-
-
+    
     const markerIcon = L.marker([latitude, longitude], { icon: customIcon });
 
+    
+    markerIcon.addTo(map).bindPopup(popupContent);
 
-    popup = markerIcon.getPopup();
-    if (!popup) {
-      popup = L.popup().setContent(popupContent);
-      markerIcon.bindPopup(popup);
-    } else {
-      popup.setContent(popupContent);
-    }
-
-
-    markerIcon.addTo(map);
 
     markers.push(circleID); 
     markers.push(markerIcon); 
   }
 }
+
 
 //Formatear información de coordenadas
 function formatCoordinates() {

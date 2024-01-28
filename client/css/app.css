@@ -24,7 +24,7 @@ body {
   text-align: center;
   background: rgba(0, 0, 0, 0.8);
   z-index: 1;
-  font-size: 15px;
+  font-size: 12px;
   color: white;
 }
 
@@ -44,7 +44,7 @@ body {
 }
 
 #menu {
-  width: 10%;
+  width: 30%;
   height: 8%;
   position: fixed;
   bottom: 10px; /* Ajusta la posición vertical según sea necesario */
@@ -98,7 +98,7 @@ body {
 }
 
 #title h1 {
-  font-size: 20px;
+  font-size: 15px;
   color: #fff;
   margin: 0;
   font-family: 'Segoe UI';
