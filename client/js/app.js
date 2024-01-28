@@ -187,8 +187,7 @@ function geolocationError(error) {
   }
 }
 
-// Misceláneas
-
+// Misceláneas de proyecto
 const socket = io();
 let usersPositions = [];
 const userOrientation = {
@@ -249,7 +248,7 @@ function uploadPosition() {
 }
 
 
-
+// Actualizar marcador
 function refreshUserPositions(usersPositions) {
   for (let marker of markers) {
     marker.remove();
